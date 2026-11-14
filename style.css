@@ -83,3 +83,8 @@ th:last-child,td.act{width:1%;white-space:nowrap;padding-left:5px;padding-right:
 /* Form mengikuti area layar yang terlihat (di atas keyboard) */
 .overlay{top:0;left:0;right:0;bottom:auto;height:var(--vvh,100dvh);transform:translateY(var(--vvt,0px))}
 @media(max-width:650px){.modal{max-height:100%;padding-bottom:84px}.modal label{margin:10px 0}}
+/* Tambah, cari, dan Excel dalam satu baris */
+.filters{flex-wrap:nowrap;align-items:stretch;gap:8px}
+.filters .primary,.filters .secondary{height:44px;padding:0 14px;flex:none;white-space:nowrap}
+.filters .search{min-width:0}
+@media(max-width:650px){.filters{gap:6px}.filters .primary{padding:0 12px}.filters .secondary{padding:0 12px}.filters .secondary .lbl{display:none}}
