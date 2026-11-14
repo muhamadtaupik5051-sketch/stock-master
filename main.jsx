@@ -3,7 +3,7 @@ import {createRoot} from "react-dom/client";
 import {onAuthStateChanged} from "firebase/auth";
 import {addDoc,collection,deleteDoc,doc,onSnapshot,orderBy,query,serverTimestamp,setDoc,updateDoc,writeBatch} from "firebase/firestore";
 import {auth,db,ready} from "./firebase";
-import {Search,Plus,Download,Package,RefreshCw,Edit3,Trash2,X,Wifi,WifiOff,Upload,Boxes,Filter} from "lucide-react";
+import {Search,Plus,Download,Package,RefreshCw,Edit3,Trash2,X,Wifi,WifiOff,Upload,Minus,Boxes,Filter} from "lucide-react";
 import "./style.css";
 
 async function readXlsx(buf){
@@ -62,11 +62,13 @@ function App(){
  const [cw,setCw]=useState(()=>{try{return {...DEF,...JSON.parse(localStorage.getItem("sm-cw")||"{}")}}catch(e){return DEF}});
  const saveCw=v=>{try{localStorage.setItem("sm-cw",JSON.stringify(v))}catch(e){}return v};
  function startRz(e,c){e.preventDefault();const x0=e.clientX,w0=cw[c],el=e.currentTarget;el.setPointerCapture(e.pointerId);
-  const mv=ev=>setCw(v=>({...v,[c]:Math.max(36,Math.min(420,w0+ev.clientX-x0))}));
+  const mv=ev=>setCw(v=>({...v,[c]:Math.max(36,Math.min(420,Math.round(w0+(ev.clientX-x0)/z)))}));
   const up=()=>{el.removeEventListener("pointermove",mv);el.removeEventListener("pointerup",up);el.removeEventListener("pointercancel",up);setCw(saveCw)};
   el.addEventListener("pointermove",mv);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)}
  const resetRz=c=>setCw(v=>saveCw({...v,[c]:DEF[c]}));
- const totalW=COLS.reduce((a,c)=>a+cw[c],0);
+ const [z,setZ]=useState(()=>{try{return Number(localStorage.getItem("sm-z"))||1}catch(e){return 1}});
+ const zoom=d=>setZ(v=>{const n=Math.min(1.6,Math.max(.7,Math.round((v+d)*10)/10));try{localStorage.setItem("sm-z",n)}catch(e){}return n});
+ const totalW=Math.round(COLS.reduce((a,c)=>a+cw[c],0)*z);
  const [sel,setSel]=useState([]),[undo,setUndo]=useState(null),timer=useRef(null);
  const [sheet,setSheet]=useState(1),[extra,setExtra]=useState(0),[names,setNames]=useState({});
  useEffect(()=>onAuthStateChanged(auth,u=>setUser(u)),[]);
@@ -155,7 +157,8 @@ function App(){
    <div className="toolbar"><div><h2>Daftar barang • {label(sheet)} <button className="rename" title="Ubah nama lembar" onClick={renameSheet}><Edit3 size={15}/></button></h2><p>Data SO, jumlah, lot, dan keterangan</p></div></div>
    <div className="filters"><button className="primary" onClick={openNew}><Plus size={18}/> Tambah</button><label className="search"><Search size={18}/><input placeholder="Cari SO" value={search} onChange={e=>setSearch(e.target.value)}/></label><button className="secondary" title="Impor dari Excel" aria-label="Impor dari Excel" onClick={()=>setImp({text:""})}><Upload size={17}/><span className="lbl">Impor</span></button><button className="secondary" title="Unduh Excel/CSV" aria-label="Unduh Excel/CSV" onClick={exportCSV}><Download size={17}/><span className="lbl">Excel/CSV</span></button></div>
    {selRows.length>0&&<div className="bulk"><span>{selRows.length} data dipilih</span><div><button className="secondary" onClick={()=>setSel([])}>Batal pilih</button><button className="dangerbtn" onClick={()=>deleteRows(selRows)}><Trash2 size={16}/> Hapus terpilih</button></div></div>}
-   <div className="tablewrap"><table style={{width:totalW,minWidth:"100%"}}><colgroup>{COLS.map(c=><col key={c} style={{width:cw[c]}}/>)}</colgroup><thead><tr>{COLS.map(c=>c==="chk"?<th key={c} className="chk"><input type="checkbox" title="Pilih semua" checked={allSel} onChange={()=>setSel(allSel?[]:filtered.map(r=>r.id))}/></th>:<th key={c}>{HEAD[c]}<span className="rz" title="Geser untuk ubah lebar (ketuk 2x untuk reset)" onPointerDown={e=>startRz(e,c)} onDoubleClick={()=>resetRz(c)}/></th>)}</tr></thead><tbody>
+   <div className="zoom"><span>Ukuran tabel</span><button type="button" aria-label="Perkecil tabel" onClick={()=>zoom(-.1)}><Minus size={15}/></button><b>{Math.round(z*100)}%</b><button type="button" aria-label="Perbesar tabel" onClick={()=>zoom(.1)}><Plus size={15}/></button></div>
+   <div className="tablewrap" style={{"--z":z}}><table style={{width:totalW,minWidth:"100%"}}><colgroup>{COLS.map(c=><col key={c} style={{width:Math.round(cw[c]*z)}}/>)}</colgroup><thead><tr>{COLS.map(c=>c==="chk"?<th key={c} className="chk"><input type="checkbox" title="Pilih semua" checked={allSel} onChange={()=>setSel(allSel?[]:filtered.map(r=>r.id))}/></th>:<th key={c}>{HEAD[c]}<span className="rz" title="Geser untuk ubah lebar (ketuk 2x untuk reset)" onPointerDown={e=>startRz(e,c)} onDoubleClick={()=>resetRz(c)}/></th>)}</tr></thead><tbody>
     {filtered.map(r=><tr key={r.id} className={sel.includes(r.id)?"picked":""}><td className="chk"><input type="checkbox" checked={sel.includes(r.id)} onChange={()=>toggle(r.id)}/></td><td className="so">{r.so}</td><td className="qty">{Number(r.qty).toLocaleString("id-ID")}</td><td className="lotc"><span className="lot">{r.lot}</span></td><td className="sty">{r.style||""}</td><td className="ket">{r.ket||""}</td><td className="act"><div className="actions"><button title="Edit" onClick={()=>openEdit(r)}><Edit3 size={16}/></button><button title="Hapus" className="danger" onClick={()=>removeRow(r)}><Trash2 size={16}/></button></div></td></tr>)}
     {!filtered.length&&<tr><td colSpan="7" className="empty"><Package size={28}/><b>Belum ada data</b><span>Tambahkan data pertama atau ubah pencarian.</span></td></tr>}
    </tbody></table></div>
