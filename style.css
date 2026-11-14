@@ -54,3 +54,15 @@ td.so{font-size:13px}td.qty{font-size:17px}
 .actions{gap:4px;padding-right:3px}.actions button{width:28px;height:28px}.actions svg{width:14px;height:14px}
 .modal{align-self:end;border-radius:16px 16px 0 0;width:100%}.overlay{padding:0}
 }
+/* Gaya tabel seperti Excel */
+.tablewrap{border:0;border-radius:0}
+table{border-collapse:collapse}
+th,td{border:1px solid #b4bbc3;text-align:center}
+th{background:#e8ebee;color:var(--ink);font-weight:700}
+td{background:#fff}
+tbody tr:nth-child(even) td{background:#f7f8fa}
+td.so{font-size:14px;font-weight:500}
+td.qty{font-family:inherit;font-weight:600;font-size:14px;line-height:1.2}
+.lot{border:0;padding:0;font:600 14px/1.2 'Barlow',system-ui,sans-serif;letter-spacing:0}
+.ket{text-align:left;color:var(--ink)}
+tbody tr.picked td{background:#fff3b8}
