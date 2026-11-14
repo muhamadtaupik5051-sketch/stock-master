@@ -156,7 +156,8 @@ function App(){
    <p className="hint">Pilih file Excel (.xlsx) atau CSV, atau salin kolom SO, QTY, LOT, KET lalu tempel di bawah. Lembar pertama yang dibaca.</p>
    <label>File Excel / CSV<input type="file" accept=".xlsx,.csv,.tsv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/plain" onChange={readFile}/></label>
    <label>Atau tempel di sini<textarea value={imp.text} onChange={e=>setImp({text:e.target.value})} placeholder={"SO\tQTY\tLOT\tKET\n10270687\t17\tD01"}/></label>
-   {imp.text.trim()&&<div className="sum">{parsed.ok.length} data siap diimpor{parsed.skip?" • "+parsed.skip+" dilewati (SO kosong atau sudah ada)":""}</div>}
+   {imp.text.trim()&&<div className="sum">{parsed.ok.length} data siap diimpor (pratinjau 3 baris pertama){parsed.skip?" • "+parsed.skip+" dilewati (SO kosong atau sudah ada)":""}</div>}
+   {parsed.ok.length>0&&<div className="tablewrap pv"><table><thead><tr><th>SO</th><th>QTY</th><th>LOT</th><th>KET</th></tr></thead><tbody>{parsed.ok.slice(0,3).map(x=><tr key={x.so}><td>{x.so}</td><td>{x.qty}</td><td>{x.lot}</td><td>{x.ket}</td></tr>)}</tbody></table></div>}
    <div className="modalbuttons"><button type="button" className="secondary" onClick={()=>setImp(null)}>Batal</button><button type="button" className="primary" disabled={!parsed.ok.length||imp.busy} onClick={doImport}>Impor {parsed.ok.length||""} data</button></div></div></div>}
   {modal&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setModal(false)}}><form className="modal" onSubmit={save}><div className="modalhead"><div><span className="eyebrow">{editing?"Perbarui":"Input"} data</span><h2>{editing?"Edit barang":"Tambah barang"}</h2></div><button type="button" className="close" onClick={()=>setModal(false)}><X/></button></div>
    <label>SO / Nomor barang<input autoFocus value={form.so} onChange={e=>setForm({...form,so:e.target.value})} placeholder="Contoh: 10270687"/></label>

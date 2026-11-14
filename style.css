@@ -95,3 +95,4 @@ th:last-child,td.act{width:1%;white-space:nowrap;padding-left:5px;padding-right:
 .primary:disabled{opacity:.45;cursor:not-allowed}
 .live.off{color:#b7791f}.stat .offline{color:#b7791f}
 th:last-child{min-width:66px}
+.modal .pv{margin-top:8px}.modal .pv th,.modal .pv td{padding:6px 8px;font-size:13px}.modal .pv th:last-child{min-width:0}
