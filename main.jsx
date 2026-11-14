@@ -54,9 +54,7 @@ function App(){
  }
  async function deleteRows(list){
   if(!list.length)return;
-  const msg=list.length===1?"Hapus data SO "+list[0].so+" (QTY "+list[0].qty+", LOT "+list[0].lot+")?
-Berlaku untuk semua pengguna.":"Hapus "+list.length+" data terpilih?
-Berlaku untuk semua pengguna.";
+  const msg=list.length===1?"Hapus data SO "+list[0].so+" (QTY "+list[0].qty+", LOT "+list[0].lot+")?\nBerlaku untuk semua pengguna.":"Hapus "+list.length+" data terpilih?\nBerlaku untuk semua pengguna.";
   if(!window.confirm(msg))return;
   try{
    for(let i=0;i<list.length;i+=400){const b=writeBatch(db);list.slice(i,i+400).forEach(r=>b.delete(doc(db,"stockItems",r.id)));await b.commit()}
