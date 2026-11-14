@@ -3,7 +3,7 @@ import {createRoot} from "react-dom/client";
 import {onAuthStateChanged} from "firebase/auth";
 import {addDoc,collection,deleteDoc,doc,onSnapshot,orderBy,query,serverTimestamp,setDoc,updateDoc} from "firebase/firestore";
 import {auth,db,ready} from "./firebase";
-import {Search,Plus,Download,Package,RefreshCw,Edit3,X,Wifi,Boxes,Filter} from "lucide-react";
+import {Search,Plus,Download,Package,RefreshCw,Edit3,Trash2,X,Wifi,Boxes,Filter} from "lucide-react";
 import "./style.css";
 
 function App(){
@@ -47,6 +47,10 @@ function App(){
    setModal(false);
   }catch(e){setError("Gagal menyimpan: "+e.message)}
  }
+ async function removeRow(r){
+  if(!window.confirm("Hapus data SO "+r.so+" (QTY "+r.qty+", LOT "+r.lot+")?\nTindakan ini tidak bisa dibatalkan dan berlaku untuk semua pengguna."))return;
+  try{await deleteDoc(doc(db,"stockItems",r.id))}catch(e){alert("Gagal menghapus: "+e.message)}
+ }
  function exportCSV(){
   const data=[["SO","QTY","LOT","KET"],...filtered.map(r=>[r.so,r.qty,r.lot,r.ket||""])];
   const csv=data.map(row=>row.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
@@ -61,7 +65,7 @@ function App(){
    <div className="toolbar"><div><h2>Daftar barang • {label(sheet)} <button className="rename" title="Ubah nama lembar" onClick={renameSheet}><Edit3 size={15}/></button></h2><p>Data SO, jumlah, lot, dan keterangan</p></div><button className="primary" onClick={openNew}><Plus size={18}/> Tambah data</button></div>
    <div className="filters"><label className="search"><Search size={18}/><input placeholder="Cari nomor SO atau keterangan..." value={search} onChange={e=>setSearch(e.target.value)}/></label><label className="select"><Filter size={17}/><select value={lotFilter} onChange={e=>setLotFilter(e.target.value)}>{lots.map(l=><option key={l}>{l}</option>)}</select></label><button className="secondary" onClick={exportCSV}><Download size={17}/> Excel/CSV</button></div>
    <div className="tablewrap"><table><thead><tr><th>SO</th><th>QTY</th><th>LOT</th><th>KET</th><th>Aksi</th></tr></thead><tbody>
-    {filtered.map(r=><tr key={r.id}><td className="so">{r.so}</td><td>{Number(r.qty).toLocaleString("id-ID")}</td><td><span className="lot">{r.lot}</span></td><td className="ket">{r.ket||"—"}</td><td><div className="actions"><button title="Edit" onClick={()=>openEdit(r)}><Edit3 size={16}/></button></div></td></tr>)}
+    {filtered.map(r=><tr key={r.id}><td className="so">{r.so}</td><td>{Number(r.qty).toLocaleString("id-ID")}</td><td><span className="lot">{r.lot}</span></td><td className="ket">{r.ket||"—"}</td><td><div className="actions"><button title="Edit" onClick={()=>openEdit(r)}><Edit3 size={16}/></button><button title="Hapus" className="danger" onClick={()=>removeRow(r)}><Trash2 size={16}/></button></div></td></tr>)}
     {!filtered.length&&<tr><td colSpan="5" className="empty"><Package size={28}/><b>Belum ada data</b><span>Tambahkan data pertama atau ubah pencarian.</span></td></tr>}
    </tbody></table></div>
    <div className="foot"><span><RefreshCw size={14}/> Sinkronisasi otomatis aktif</span><span>{filtered.length} dari {sheetRows.length} data</span></div>

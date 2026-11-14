@@ -4,7 +4,7 @@ Aplikasi stok bersama berdasarkan kolom pada contoh: **SO, QTY, LOT, KET**.
 Data tersinkron otomatis secara realtime melalui Firebase Firestore. Bisa dibuka di browser dan dipasang ke layar utama Android sebagai aplikasi (PWA).
 
 ## Fitur
-- Tambah dan edit data SO/QTY/LOT/KET.
+- Tambah, edit, dan hapus (dengan konfirmasi) data SO/QTY/LOT/KET.
 - Nomor SO dibuat unik (pemeriksaan di sisi aplikasi).
 - Cari SO/keterangan dan filter LOT.
 - Ekspor hasil filter ke CSV yang bisa dibuka di Excel.
@@ -19,7 +19,7 @@ Data tersinkron otomatis secara realtime melalui Firebase Firestore. Bisa dibuka
 5. Firestore Database > Create database.
 6. Buka tab Rules, salin isi file `firestore.rules`, lalu Publish.
 
-**Penting:** aturan contoh ini memberi setiap pengguna anonim yang membuka aplikasi izin membaca, menambah, mengubah data stok. Penghapusan data dinonaktifkan pada versi awal. Bagikan link hanya kepada kelompok yang memang boleh mengelola stok. Untuk pemakaian perusahaan/produksi, sebaiknya tambahkan login, pembatasan akses per kelompok, dan audit log sebelum dipakai.
+**Penting:** aturan contoh ini memberi setiap pengguna anonim yang membuka aplikasi izin membaca, menambah, mengubah data stok. Penghapusan data diizinkan; aplikasi meminta konfirmasi sebelum menghapus. Bagikan link hanya kepada kelompok yang memang boleh mengelola stok. Untuk pemakaian perusahaan/produksi, sebaiknya tambahkan login, pembatasan akses per kelompok, dan audit log sebelum dipakai.
 
 ## 2. Jalankan di komputer
 Perlu Node.js versi 20 atau lebih baru.
