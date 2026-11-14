@@ -18,7 +18,7 @@ header{height:62px;display:flex;align-items:center;justify-content:space-between
 .primary,.secondary,.dangerbtn{border-radius:8px;padding:11px 16px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:700;font-size:14px;border:1.5px solid transparent}
 .primary{background:var(--acc);color:var(--ink)}.primary:hover{filter:brightness(.95)}.secondary{background:#fff;border-color:var(--line);color:var(--ink)}.dangerbtn{background:var(--red);color:#fff}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
-.search,.select{height:44px;border:1.5px solid var(--line);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--mut);background:#fff}.search{flex:1 1 100%}.select{flex:1}
+.search,.select{height:44px;border:1.5px solid var(--line);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--mut);background:#fff}.search{flex:1 1 0;min-width:0}.select{flex:1}
 .search input{border:0;outline:0;width:100%;min-width:0;color:var(--ink);background:transparent}.select select{border:0;outline:0;background:transparent;color:var(--ink);width:100%}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
 table{width:100%;border-collapse:collapse;text-align:left}
