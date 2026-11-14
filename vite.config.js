@@ -7,7 +7,7 @@ const copyStatic = () => ({
   name: "copy-static",
   closeBundle() {
     mkdirSync("dist", { recursive: true });
-    for (const f of ["icon.svg", "manifest.webmanifest"]) copyFileSync(f, "dist/" + f);
+    for (const f of ["icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "manifest.webmanifest"]) copyFileSync(f, "dist/" + f);
   }
 });
 
