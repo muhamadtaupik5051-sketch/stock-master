@@ -40,22 +40,33 @@ function splitLine(l,d){const o=[];let c="",q=false;for(let i=0;i<l.length;i++){
 function parseImport(text,existing){
  const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
  const d=lines.some(l=>l.includes("\t"))?"\t":lines.some(l=>l.includes(";"))?";":",";
- const seen=new Set(existing),ok=[];let skip=0;
- lines.forEach((l,i)=>{
+ const seen=new Set(existing),ok=[];let skip=0,map=null;
+ lines.forEach(l=>{
   const c=splitLine(l,d);
-  if(/^so$/i.test(c[0]))return;
-  const so=c[0];if(!so){skip++;return}
-  const k=so.toLowerCase();if(seen.has(k)){skip++;return}seen.add(k);
-  const q=Number(c[1]);ok.push({so,qty:Number.isFinite(q)&&q>=0?q:0,lot:(c[2]||"").toUpperCase(),ket:c[3]||""});
+  if(c.some(x=>/^so$/i.test(x))){map={};c.forEach((h,j)=>{const k=h.toLowerCase();if(["so","qty","lot","style","ket"].includes(k))map[k]=j});return}
+  const m=map||(c.length>=5?{so:0,qty:1,lot:2,style:3,ket:4}:{so:0,qty:1,lot:2,ket:3});
+  const g=k=>m[k]===undefined?"":(c[m[k]]||"");
+  const so=g("so");if(!so){skip++;return}
+  const key=so.toLowerCase();if(seen.has(key)){skip++;return}seen.add(key);
+  const q=Number(g("qty"));ok.push({so,qty:Number.isFinite(q)&&q>=0?q:0,lot:g("lot").toUpperCase(),style:g("style"),ket:g("ket")});
  });
  return {ok,skip};
 }
+const COLS=["chk","so","qty","lot","style","ket","act"],HEAD={so:"SO",qty:"QTY",lot:"LOT",style:"STYLE",ket:"KET",act:"Aksi"},DEF={chk:34,so:104,qty:58,lot:62,style:104,ket:120,act:72};
 function App(){
  const [user,setUser]=useState(null),[rows,setRows]=useState([]),[status,setStatus]=useState("Menghubungkan...");
  const [search,setSearch]=useState(""),[lotFilter,setLotFilter]=useState("Semua LOT");
  const [modal,setModal]=useState(false),[editing,setEditing]=useState(null);
- const [form,setForm]=useState({so:"",qty:"",lot:"",ket:""}),[error,setError]=useState("");
+ const [form,setForm]=useState({so:"",qty:"",lot:"",style:"",ket:""}),[error,setError]=useState("");
  const [imp,setImp]=useState(null),[online,setOnline]=useState(navigator.onLine);
+ const [cw,setCw]=useState(()=>{try{return {...DEF,...JSON.parse(localStorage.getItem("sm-cw")||"{}")}}catch(e){return DEF}});
+ const saveCw=v=>{try{localStorage.setItem("sm-cw",JSON.stringify(v))}catch(e){}return v};
+ function startRz(e,c){e.preventDefault();const x0=e.clientX,w0=cw[c],el=e.currentTarget;el.setPointerCapture(e.pointerId);
+  const mv=ev=>setCw(v=>({...v,[c]:Math.max(36,Math.min(420,w0+ev.clientX-x0))}));
+  const up=()=>{el.removeEventListener("pointermove",mv);el.removeEventListener("pointerup",up);el.removeEventListener("pointercancel",up);setCw(saveCw)};
+  el.addEventListener("pointermove",mv);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)}
+ const resetRz=c=>setCw(v=>saveCw({...v,[c]:DEF[c]}));
+ const totalW=COLS.reduce((a,c)=>a+cw[c],0);
  const [sel,setSel]=useState([]),[undo,setUndo]=useState(null),timer=useRef(null);
  const [sheet,setSheet]=useState(1),[extra,setExtra]=useState(0),[names,setNames]=useState({});
  useEffect(()=>onAuthStateChanged(auth,u=>setUser(u)),[]);
@@ -84,13 +95,13 @@ function App(){
  const sheets=Array.from({length:maxSheet},(_,i)=>i+1);
  const sheetRows=useMemo(()=>rows.filter(r=>sheetOf(r)===sheet),[rows,sheet]);
  const lots=useMemo(()=>["Semua LOT",...new Set(sheetRows.map(r=>r.lot).filter(Boolean).sort())],[sheetRows]);
- const filtered=useMemo(()=>sheetRows.filter(r=>(String(r.so).toLowerCase().includes(search.toLowerCase())||String(r.ket||"").toLowerCase().includes(search.toLowerCase()))&&(lotFilter==="Semua LOT"||r.lot===lotFilter)),[sheetRows,search,lotFilter]);
+ const filtered=useMemo(()=>sheetRows.filter(r=>(String(r.so).toLowerCase().includes(search.toLowerCase())||String(r.ket||"").toLowerCase().includes(search.toLowerCase())||String(r.style||"").toLowerCase().includes(search.toLowerCase()))&&(lotFilter==="Semua LOT"||r.lot===lotFilter)),[sheetRows,search,lotFilter]);
  const selRows=filtered.filter(r=>sel.includes(r.id));
  const allSel=filtered.length>0&&selRows.length===filtered.length;
  const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):[...v,id]);
  const totalQty=filtered.reduce((a,r)=>a+(Number(r.qty)||0),0);
- function openNew(){setEditing(null);setForm({so:"",qty:"",lot:"",ket:""});setError("");setModal(true)}
- function openEdit(r){setEditing(r);setForm({so:r.so||"",qty:String(r.qty??""),lot:r.lot||"",ket:r.ket||""});setError("");setModal(true)}
+ function openNew(){setEditing(null);setForm({so:"",qty:"",lot:"",style:"",ket:""});setError("");setModal(true)}
+ function openEdit(r){setEditing(r);setForm({so:r.so||"",qty:String(r.qty??""),lot:r.lot||"",style:r.style||"",ket:r.ket||""});setError("");setModal(true)}
  async function save(e){
   e.preventDefault();setError("");
   const so=form.so.trim(),lot=form.lot.trim();
@@ -99,7 +110,7 @@ function App(){
   try{
    const duplicate=sheetRows.find(r=>String(r.so).toLowerCase()===so.toLowerCase()&&r.id!==editing?.id);
    if(duplicate){setError("Nomor SO sudah ada di "+label(sheet)+". Gunakan SO yang berbeda atau edit data tersebut.");return}
-   const payload={so,qty,lot,ket:form.ket.trim(),updatedAt:serverTimestamp(),updatedBy:user?.uid||"anon"};
+   const payload={so,qty,lot,style:form.style.trim(),ket:form.ket.trim(),updatedAt:serverTimestamp(),updatedBy:user?.uid||"anon"};
    if(editing) await commit(updateDoc(doc(db,"stockItems",editing.id),payload));
    else await commit(addDoc(collection(db,"stockItems"),{...payload,sheet,createdAt:serverTimestamp()}));
    setModal(false);
@@ -132,7 +143,7 @@ function App(){
   }catch(e){alert("Gagal impor: "+e.message);setImp(v=>v&&{...v,busy:false})}
  }
  function exportCSV(){
-  const data=[["SO","QTY","LOT","KET"],...filtered.map(r=>[r.so,r.qty,r.lot,r.ket||""])];
+  const data=[["SO","QTY","LOT","STYLE","KET"],...filtered.map(r=>[r.so,r.qty,r.lot,r.style||"",r.ket||""])];
   const csv=data.map(row=>row.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="stock-master-"+label(sheet).replace(/[^\w\-]+/g,"-")+".csv";a.click();URL.revokeObjectURL(a.href);
  }
@@ -144,24 +155,25 @@ function App(){
    <div className="toolbar"><div><h2>Daftar barang • {label(sheet)} <button className="rename" title="Ubah nama lembar" onClick={renameSheet}><Edit3 size={15}/></button></h2><p>Data SO, jumlah, lot, dan keterangan</p></div></div>
    <div className="filters"><button className="primary" onClick={openNew}><Plus size={18}/> Tambah</button><label className="search"><Search size={18}/><input placeholder="Cari SO" value={search} onChange={e=>setSearch(e.target.value)}/></label><button className="secondary" title="Impor dari Excel" aria-label="Impor dari Excel" onClick={()=>setImp({text:""})}><Upload size={17}/><span className="lbl">Impor</span></button><button className="secondary" title="Unduh Excel/CSV" aria-label="Unduh Excel/CSV" onClick={exportCSV}><Download size={17}/><span className="lbl">Excel/CSV</span></button></div>
    {selRows.length>0&&<div className="bulk"><span>{selRows.length} data dipilih</span><div><button className="secondary" onClick={()=>setSel([])}>Batal pilih</button><button className="dangerbtn" onClick={()=>deleteRows(selRows)}><Trash2 size={16}/> Hapus terpilih</button></div></div>}
-   <div className="tablewrap"><table><thead><tr><th className="chk"><input type="checkbox" title="Pilih semua" checked={allSel} onChange={()=>setSel(allSel?[]:filtered.map(r=>r.id))}/></th><th>SO</th><th>QTY</th><th>LOT</th><th>KET</th><th>Aksi</th></tr></thead><tbody>
-    {filtered.map(r=><tr key={r.id} className={sel.includes(r.id)?"picked":""}><td className="chk"><input type="checkbox" checked={sel.includes(r.id)} onChange={()=>toggle(r.id)}/></td><td className="so">{r.so}</td><td className="qty">{Number(r.qty).toLocaleString("id-ID")}</td><td className="lotc"><span className="lot">{r.lot}</span></td><td className="ket">{r.ket||""}</td><td className="act"><div className="actions"><button title="Edit" onClick={()=>openEdit(r)}><Edit3 size={16}/></button><button title="Hapus" className="danger" onClick={()=>removeRow(r)}><Trash2 size={16}/></button></div></td></tr>)}
-    {!filtered.length&&<tr><td colSpan="6" className="empty"><Package size={28}/><b>Belum ada data</b><span>Tambahkan data pertama atau ubah pencarian.</span></td></tr>}
+   <div className="tablewrap"><table style={{width:totalW,minWidth:"100%"}}><colgroup>{COLS.map(c=><col key={c} style={{width:cw[c]}}/>)}</colgroup><thead><tr>{COLS.map(c=>c==="chk"?<th key={c} className="chk"><input type="checkbox" title="Pilih semua" checked={allSel} onChange={()=>setSel(allSel?[]:filtered.map(r=>r.id))}/></th>:<th key={c}>{HEAD[c]}<span className="rz" title="Geser untuk ubah lebar (ketuk 2x untuk reset)" onPointerDown={e=>startRz(e,c)} onDoubleClick={()=>resetRz(c)}/></th>)}</tr></thead><tbody>
+    {filtered.map(r=><tr key={r.id} className={sel.includes(r.id)?"picked":""}><td className="chk"><input type="checkbox" checked={sel.includes(r.id)} onChange={()=>toggle(r.id)}/></td><td className="so">{r.so}</td><td className="qty">{Number(r.qty).toLocaleString("id-ID")}</td><td className="lotc"><span className="lot">{r.lot}</span></td><td className="sty">{r.style||""}</td><td className="ket">{r.ket||""}</td><td className="act"><div className="actions"><button title="Edit" onClick={()=>openEdit(r)}><Edit3 size={16}/></button><button title="Hapus" className="danger" onClick={()=>removeRow(r)}><Trash2 size={16}/></button></div></td></tr>)}
+    {!filtered.length&&<tr><td colSpan="7" className="empty"><Package size={28}/><b>Belum ada data</b><span>Tambahkan data pertama atau ubah pencarian.</span></td></tr>}
    </tbody></table></div>
    <div className="foot"><span><RefreshCw size={14}/> Sinkronisasi otomatis aktif</span><span>{filtered.length} dari {sheetRows.length} data</span></div>
   </section>
   <footer>STOCK MASTER <span>•</span> Aplikasi stok bersama</footer>
   {undo&&<div className="toast"><span>{undo.length} data dihapus</span><button onClick={undoDelete}>Urungkan</button></div>}
   {imp&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setImp(null)}}><div className="modal"><div className="modalhead"><div><span className="eyebrow">Ke {label(sheet)}</span><h2>Impor dari Excel</h2></div><button type="button" className="close" onClick={()=>setImp(null)}><X/></button></div>
-   <p className="hint">Pilih file Excel (.xlsx) atau CSV, atau salin kolom SO, QTY, LOT, KET lalu tempel di bawah. Lembar pertama yang dibaca.</p>
+   <p className="hint">Pilih file Excel (.xlsx) atau CSV, atau salin kolom SO, QTY, LOT, STYLE, KET lalu tempel di bawah. Lembar pertama yang dibaca.</p>
    <label>File Excel / CSV<input type="file" accept=".xlsx,.csv,.tsv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/plain" onChange={readFile}/></label>
    <label>Atau tempel di sini<textarea value={imp.text} onChange={e=>setImp({text:e.target.value})} placeholder={"SO\tQTY\tLOT\tKET\n10270687\t17\tD01"}/></label>
    {imp.text.trim()&&<div className="sum">{parsed.ok.length} data siap diimpor (pratinjau 3 baris pertama){parsed.skip?" • "+parsed.skip+" dilewati (SO kosong atau sudah ada)":""}</div>}
-   {parsed.ok.length>0&&<div className="tablewrap pv"><table><thead><tr><th>SO</th><th>QTY</th><th>LOT</th><th>KET</th></tr></thead><tbody>{parsed.ok.slice(0,3).map(x=><tr key={x.so}><td>{x.so}</td><td>{x.qty}</td><td>{x.lot}</td><td>{x.ket}</td></tr>)}</tbody></table></div>}
+   {parsed.ok.length>0&&<div className="tablewrap pv"><table><thead><tr><th>SO</th><th>QTY</th><th>LOT</th><th>STYLE</th><th>KET</th></tr></thead><tbody>{parsed.ok.slice(0,3).map(x=><tr key={x.so}><td>{x.so}</td><td>{x.qty}</td><td>{x.lot}</td><td>{x.style}</td><td>{x.ket}</td></tr>)}</tbody></table></div>}
    <div className="modalbuttons"><button type="button" className="secondary" onClick={()=>setImp(null)}>Batal</button><button type="button" className="primary" disabled={!parsed.ok.length||imp.busy} onClick={doImport}>Impor {parsed.ok.length||""} data</button></div></div></div>}
   {modal&&<div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setModal(false)}}><form className="modal" onSubmit={save}><div className="modalhead"><div><span className="eyebrow">{editing?"Perbarui":"Input"} data</span><h2>{editing?"Edit barang":"Tambah barang"}</h2></div><button type="button" className="close" onClick={()=>setModal(false)}><X/></button></div>
    <label>SO / Nomor barang<input autoFocus value={form.so} onChange={e=>setForm({...form,so:e.target.value})} placeholder="Contoh: 10270687"/></label>
    <div className="twocol"><label>QTY<input type="number" min="0" step="1" value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="0"/></label><label>LOT<input value={form.lot} onChange={e=>setForm({...form,lot:e.target.value.toUpperCase()})} placeholder="Contoh: D01"/></label></div>
+   <label>STYLE <span className="optional">(opsional)</span><input value={form.style} onChange={e=>setForm({...form,style:e.target.value})} placeholder="Contoh: AB1234"/></label>
    <label>KET / Keterangan <span className="optional">(opsional)</span><input value={form.ket} onChange={e=>setForm({...form,ket:e.target.value})} placeholder="Catatan barang..."/></label>
    {error&&<div className="error">{error}</div>}<div className="modalbuttons"><button type="button" className="secondary" onClick={()=>setModal(false)}>Batal</button><button className="primary" type="submit">{editing?"Simpan perubahan":"Simpan data"}</button></div>
   </form></div>}

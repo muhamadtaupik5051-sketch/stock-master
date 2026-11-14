@@ -96,3 +96,12 @@ th:last-child,td.act{width:1%;white-space:nowrap;padding-left:5px;padding-right:
 .live.off{color:#b7791f}.stat .offline{color:#b7791f}
 th:last-child{min-width:66px}
 .modal .pv{margin-top:8px}.modal .pv th,.modal .pv td{padding:6px 8px;font-size:13px}.modal .pv th:last-child{min-width:0}
+/* Kolom STYLE dan lebar kolom yang bisa digeser */
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{table-layout:fixed}
+th,td{overflow:hidden;word-break:break-word}
+th{position:relative;user-select:none}
+.rz{position:absolute;top:0;right:0;width:16px;height:100%;cursor:col-resize;touch-action:none;z-index:2}
+.rz::after{content:"";position:absolute;right:3px;top:26%;height:48%;width:3px;border-radius:2px;background:#9aa3ad}
+td.sty{text-align:center}.ket{max-width:none}
+.modal .pv table{table-layout:auto;width:100%}
