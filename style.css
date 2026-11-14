@@ -119,3 +119,61 @@ td.sty{text-align:center}.ket{max-width:none}
 .tablewrap td,.tablewrap th{padding:calc(10px*var(--z,1)) calc(6px*var(--z,1))}
 .rz{width:min(16px,50%)}
 .zoom b{cursor:pointer}
+/* Login admin/operator */
+.login-shell{min-height:100dvh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at top right,#fff4bf 0,transparent 38%),var(--bg)}
+.login-card{width:min(100%,410px);background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 18px 55px #1f23281a}
+.login-logo{width:54px;height:54px;border-radius:14px;background:var(--ink);color:var(--acc);display:grid;place-items:center;margin-bottom:18px}
+.login-kicker{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--grn)}
+.login-card h1{font:800 32px/1 var(--cond);margin:7px 0 8px;letter-spacing:.5px}
+.login-desc,.login-card>p{font-size:14px;color:var(--mut);margin:0 0 20px}
+.login-card label{display:block;font-size:13px;font-weight:700;margin:14px 0;color:var(--ink)}
+.login-card input{display:block;width:100%;margin-top:7px;padding:13px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-size:15px;outline:none}
+.login-card input:focus{border-color:var(--grn)}
+.login-submit{width:100%;margin-top:8px;padding:14px}
+.login-card>small{display:block;text-align:center;color:var(--mut);font-size:11px;margin-top:15px;line-height:1.5}
+.user-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.role-pill{font-size:10px;font-weight:800;letter-spacing:.6px;padding:6px 9px;border-radius:20px;background:#e7f5ee;color:#16734a}
+.role-pill.operator{background:#fff4d6;color:#805d00}
+.logout-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 10px;font-size:12px;font-weight:700;color:var(--ink)}
+@media(max-width:520px){.login-card{padding:23px}.user-tools{gap:6px}.user-tools .live{font-size:10px}.logout-btn{padding:6px 8px}}
+.signed-user{font-size:12px;font-weight:700;color:var(--ink);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+/* Admin account management */
+.manage-users-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line,#d9dee7);background:var(--surface,#fff);color:var(--text,#182230);border-radius:10px;padding:9px 11px;font-weight:700;white-space:nowrap}
+.account-modal{width:min(680px,calc(100vw - 28px));max-height:calc(100dvh - 28px);overflow:auto}
+.account-create{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;border:1px solid var(--line,#e1e5eb);border-radius:13px;margin:14px 0}
+.account-create h3,.account-list-head h3{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:0;font-size:15px}
+.account-create label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700}
+.account-create input,.account-create select,.account-actions select{width:100%;min-width:0;border:1px solid var(--line,#d9dee7);border-radius:9px;padding:10px;background:var(--surface,#fff);color:var(--text,#182230);font:inherit}
+.account-create button,.account-create .error{grid-column:1/-1}
+.account-list-head{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px}
+.account-list-head span{font-size:12px;color:var(--muted,#687385)}
+.account-list{display:grid;gap:8px}
+.account-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border:1px solid var(--line,#e1e5eb);border-radius:12px}
+.account-info{display:grid;gap:4px;min-width:0}
+.account-info b{font-size:13px;overflow-wrap:anywhere}
+.account-info small{font-size:11px;color:var(--muted,#687385);overflow-wrap:anywhere}
+.account-info .role-pill{width:max-content;font-size:10px}
+.account-actions{display:flex;align-items:center;gap:7px}
+.account-actions select{width:auto;max-width:112px;padding:8px;font-size:12px}
+.account-actions button{white-space:nowrap;font-size:11px;padding:8px}
+@media(max-width:620px){
+ .manage-users-btn{padding:8px;font-size:11px}
+ .account-create{grid-template-columns:1fr}
+ .account-row{align-items:flex-start;flex-direction:column}
+ .account-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+ .account-actions select{width:100%;max-width:none}
+}
+
+/* Kontrol aplikasi publik dan tombol ON/OFF Admin */
+.control-modal{max-width:620px}
+.control-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 2px;border-bottom:1px solid var(--line,#e1e5eb)}
+.control-row>div{display:grid;gap:4px;min-width:0}
+.control-row b{font-size:14px;color:var(--ink)}
+.control-row small{font-size:11px;color:var(--mut)}
+.switch{min-width:62px;border:0;border-radius:22px;padding:8px 12px;font-size:12px;font-weight:800;background:#e6e9ee;color:#596273;cursor:pointer}
+.switch.on{background:#d8f5e5;color:#087443}
+.app-switch-row{margin-top:10px;padding:15px 10px;background:#fff7e7;border:1px solid #f2dfb8;border-radius:12px}
+.control-modal .modalbuttons{margin-top:16px}
+@media(max-width:520px){.control-row{padding:12px 0}.control-row b{font-size:13px}.switch{min-width:56px}}

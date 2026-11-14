@@ -1,5 +1,5 @@
 // Service worker sederhana: menyimpan tampilan aplikasi agar bisa dibuka tanpa sinyal.
-const C = "stock-master-v1";
+const C = "stock-master-v3-public-control";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(["/", "/manifest.webmanifest", "/icon-192.png"])).then(() => self.skipWaiting()));
 });

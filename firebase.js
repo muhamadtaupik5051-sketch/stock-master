@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -11,8 +11,11 @@ const firebaseConfig = {
   appId: "1:806200771118:web:7fd3de03471889e17a15bf"
 };
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+// Auth terpisah dipakai admin saat membuat akun lain agar sesi admin tidak keluar.
+const accountApp = initializeApp(firebaseConfig, "stock-master-account-creator");
+export const accountAuth = getAuth(accountApp);
 // Data disimpan di HP (IndexedDB) agar aplikasi tetap bisa dipakai tanpa sinyal.
 export const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
-export const ready = signInAnonymously(auth).catch(() => null);
+
