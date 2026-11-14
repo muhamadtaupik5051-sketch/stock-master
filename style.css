@@ -74,3 +74,9 @@ th:last-child,td.act{width:1%;white-space:nowrap;padding-left:5px;padding-right:
 .actions{gap:3px;padding-right:0;justify-content:center}
 .actions button{width:28px;height:28px;border-radius:7px}
 .actions svg{width:14px;height:14px}
+/* Form tambah/edit: tombol Simpan tidak tertutup lencana Netlify/keyboard */
+@media(max-width:650px){
+.modal{max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;padding-bottom:84px}
+.modalbuttons{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.modalbuttons .primary,.modalbuttons .secondary{padding:14px}
+}
