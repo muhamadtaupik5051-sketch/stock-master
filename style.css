@@ -115,3 +115,7 @@ td.sty{text-align:center}.ket{max-width:none}
 .tablewrap .actions button{width:calc(28px*var(--z,1));height:calc(28px*var(--z,1))}
 .tablewrap .actions svg{width:calc(14px*var(--z,1));height:calc(14px*var(--z,1))}
 .tablewrap .chk input{width:calc(16px*var(--z,1));height:calc(16px*var(--z,1))}
+/* Ukuran kecil (sampai 40%) */
+.tablewrap td,.tablewrap th{padding:calc(10px*var(--z,1)) calc(6px*var(--z,1))}
+.rz{width:min(16px,50%)}
+.zoom b{cursor:pointer}
