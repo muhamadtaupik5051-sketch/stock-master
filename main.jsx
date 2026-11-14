@@ -20,6 +20,12 @@ function App(){
   return onSnapshot(q,s=>{const all=s.docs.map(d=>({id:d.id,...d.data()}));setRows(all.filter(r=>r.id!=="_meta"));setNames((all.find(r=>r.id==="_meta")||{}).names||{});setStatus("Online • Data tersinkron");},e=>setStatus("Gagal memuat: "+e.message));
  },[user]);
  useEffect(()=>setSel([]),[sheet]);
+ useEffect(()=>{
+  if(!modal)return;const vv=window.visualViewport;if(!vv)return;const r=document.documentElement.style;
+  const set=()=>{r.setProperty("--vvh",vv.height+"px");r.setProperty("--vvt",vv.offsetTop+"px")};
+  set();vv.addEventListener("resize",set);vv.addEventListener("scroll",set);
+  return()=>{vv.removeEventListener("resize",set);vv.removeEventListener("scroll",set);r.removeProperty("--vvh");r.removeProperty("--vvt")};
+ },[modal]);
  const sheetOf=r=>Number(r.sheet)||1;
  const label=n=>(names[n]&&String(names[n]).trim())||"Lembar "+n;
  async function renameSheet(){
