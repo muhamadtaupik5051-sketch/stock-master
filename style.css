@@ -26,7 +26,7 @@ th{background:#f4f5f7;color:var(--mut);font-size:12px;font-weight:600;padding:11
 td{padding:11px 14px;border-top:1px solid var(--line);font-size:15px;vertical-align:middle}
 td.so{font-weight:600;font-variant-numeric:tabular-nums}td.qty{font:700 20px/1 var(--cond);font-variant-numeric:tabular-nums}
 .lot{display:inline-block;border:1.5px solid var(--ink);border-radius:4px;padding:1px 7px;font:700 15px/1.3 var(--cond);letter-spacing:.4px}
-.ket{color:var(--mut);max-width:260px}.ket:empty{display:none}
+.ket{color:var(--mut);max-width:260px}
 .chk{width:44px;text-align:center}.chk input{width:18px;height:18px;accent-color:var(--ink)}
 tr.picked td{background:#fff8d6}
 .actions{display:flex;gap:6px;justify-content:flex-end}
@@ -45,12 +45,12 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:22px 0 60px}foo
 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px}.optional{font-weight:400;color:var(--mut)}
 .modalbuttons{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.error{background:#fbeceb;color:var(--red);border-radius:8px;padding:10px;font-size:13px}
 @media(max-width:650px){
-.app{padding:0 10px 24px}.panel{padding:12px}.tablewrap{border:0;overflow:visible}
-table,tbody,thead{display:block}thead tr{display:block;margin-bottom:8px}th:not(.chk){display:none}
-th.chk{display:flex;align-items:center;width:auto;background:none;padding:2px 4px;text-align:left}th.chk::after{content:"Pilih semua";margin-left:10px;font-size:13px;color:var(--mut)}
-tbody tr{display:grid;grid-template-columns:34px 1fr auto;grid-template-areas:"chk so qty" "chk lot act" "chk ket ket";gap:4px 8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 10px 10px 6px;margin-bottom:8px}
-tbody td{border:0;padding:0}td.chk{grid-area:chk;width:auto;text-align:center}td.so{grid-area:so;font-size:17px}td.qty{grid-area:qty;font-size:26px;text-align:right}td.lotc{grid-area:lot}td.act{grid-area:act}td.ket{grid-area:ket;max-width:none;font-size:14px}
-tr.picked{background:#fff8d6;border-color:var(--acc)}tr.picked td{background:transparent}
-td.empty{grid-column:1/-1;grid-row:1;padding:30px 0}
+.app{padding:0 8px 24px}.panel{padding:10px}
+table{font-size:13px}th{padding:8px 3px;font-size:11px}td{padding:7px 3px;font-size:13px}
+.chk{width:30px;padding-left:6px;padding-right:0}.chk input{width:16px;height:16px}
+td.so{font-size:13px}td.qty{font-size:17px}
+.lot{padding:0 5px;font-size:13px}
+.ket{max-width:none;font-size:12px;line-height:1.25;word-break:break-word}
+.actions{gap:4px;padding-right:3px}.actions button{width:28px;height:28px}.actions svg{width:14px;height:14px}
 .modal{align-self:end;border-radius:16px 16px 0 0;width:100%}.overlay{padding:0}
 }
