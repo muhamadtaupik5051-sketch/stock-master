@@ -66,3 +66,11 @@ td.qty{font-family:inherit;font-weight:600;font-size:14px;line-height:1.2}
 .lot{border:0;padding:0;font:600 14px/1.2 'Barlow',system-ui,sans-serif;letter-spacing:0}
 .ket{text-align:left;color:var(--ink)}
 tbody tr.picked td{background:#fff3b8}
+/* Jarak isi kolom dilonggarkan, kolom Aksi diperkecil */
+th,td{padding:10px 6px}
+th.chk,td.chk{width:30px;padding-left:4px;padding-right:4px}
+td.ket{padding-left:8px;padding-right:6px}
+th:last-child,td.act{width:1%;white-space:nowrap;padding-left:5px;padding-right:5px}
+.actions{gap:3px;padding-right:0;justify-content:center}
+.actions button{width:28px;height:28px;border-radius:7px}
+.actions svg{width:14px;height:14px}
