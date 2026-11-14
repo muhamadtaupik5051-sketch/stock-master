@@ -1,7 +1,7 @@
 import React, {useEffect,useMemo,useState} from "react";
 import {createRoot} from "react-dom/client";
 import {onAuthStateChanged} from "firebase/auth";
-import {addDoc,collection,deleteDoc,doc,onSnapshot,orderBy,query,serverTimestamp,updateDoc} from "firebase/firestore";
+import {addDoc,collection,deleteDoc,doc,onSnapshot,orderBy,query,serverTimestamp,setDoc,updateDoc} from "firebase/firestore";
 import {auth,db,ready} from "./firebase";
 import {Search,Plus,Download,Package,RefreshCw,Edit3,X,Wifi,Boxes,Filter} from "lucide-react";
 import "./style.css";
@@ -11,14 +11,20 @@ function App(){
  const [search,setSearch]=useState(""),[lotFilter,setLotFilter]=useState("Semua LOT");
  const [modal,setModal]=useState(false),[editing,setEditing]=useState(null);
  const [form,setForm]=useState({so:"",qty:"",lot:"",ket:""}),[error,setError]=useState("");
- const [sheet,setSheet]=useState(1),[extra,setExtra]=useState(0);
+ const [sheet,setSheet]=useState(1),[extra,setExtra]=useState(0),[names,setNames]=useState({});
  useEffect(()=>onAuthStateChanged(auth,u=>setUser(u)),[]);
  useEffect(()=>{
   if(!user)return;
   const q=query(collection(db,"stockItems"),orderBy("updatedAt","desc"));
-  return onSnapshot(q,s=>{setRows(s.docs.map(d=>({id:d.id,...d.data()})));setStatus("Online • Data tersinkron");},e=>setStatus("Gagal memuat: "+e.message));
+  return onSnapshot(q,s=>{const all=s.docs.map(d=>({id:d.id,...d.data()}));setRows(all.filter(r=>r.id!=="_meta"));setNames((all.find(r=>r.id==="_meta")||{}).names||{});setStatus("Online • Data tersinkron");},e=>setStatus("Gagal memuat: "+e.message));
  },[user]);
  const sheetOf=r=>Number(r.sheet)||1;
+ const label=n=>(names[n]&&String(names[n]).trim())||"Lembar "+n;
+ async function renameSheet(){
+  const nm=window.prompt("Nama lembar (kosongkan untuk kembali ke nama awal):",names[sheet]||"Lembar "+sheet);
+  if(nm===null)return;
+  try{await setDoc(doc(db,"stockItems","_meta"),{names:{[sheet]:nm.trim().slice(0,30)},updatedAt:serverTimestamp(),updatedBy:user?.uid||"anon"},{merge:true})}catch(e){alert("Gagal mengubah nama: "+e.message)}
+ }
  const maxSheet=Math.max(3,extra,...rows.map(sheetOf));
  const sheets=Array.from({length:maxSheet},(_,i)=>i+1);
  const sheetRows=useMemo(()=>rows.filter(r=>sheetOf(r)===sheet),[rows,sheet]);
@@ -34,7 +40,7 @@ function App(){
   const qty=Number(form.qty);if(!Number.isFinite(qty)||qty<0){setError("QTY harus berupa angka 0 atau lebih.");return}
   try{
    const duplicate=sheetRows.find(r=>String(r.so).toLowerCase()===so.toLowerCase()&&r.id!==editing?.id);
-   if(duplicate){setError("Nomor SO sudah ada di Lembar "+sheet+". Gunakan SO yang berbeda atau edit data tersebut.");return}
+   if(duplicate){setError("Nomor SO sudah ada di "+label(sheet)+". Gunakan SO yang berbeda atau edit data tersebut.");return}
    const payload={so,qty,lot,ket:form.ket.trim(),updatedAt:serverTimestamp(),updatedBy:user?.uid||"anon"};
    if(editing) await updateDoc(doc(db,"stockItems",editing.id),payload);
    else await addDoc(collection(db,"stockItems"),{...payload,sheet,createdAt:serverTimestamp()});
@@ -44,15 +50,15 @@ function App(){
  function exportCSV(){
   const data=[["SO","QTY","LOT","KET"],...filtered.map(r=>[r.so,r.qty,r.lot,r.ket||""])];
   const csv=data.map(row=>row.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="stock-master-lembar-"+sheet+".csv";a.click();URL.revokeObjectURL(a.href);
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="stock-master-"+label(sheet).replace(/[^\w\-]+/g,"-")+".csv";a.click();URL.revokeObjectURL(a.href);
  }
  return <main className="app">
   <header><div className="brand"><div className="logo"><Boxes size={25}/></div><div><b>STOCK MASTER</b><small>INVENTORY • REALTIME SHARED</small></div></div><div className="live"><Wifi size={16}/><span>{status}</span></div></header>
   <section className="hero"><div><span className="eyebrow">DASHBOARD STOK</span><h1>Kelola stok bersama.</h1><p>Perubahan data akan terlihat oleh pengguna lain secara otomatis.</p></div><div className="heroicon"><Package size={42}/></div></section>
   <section className="stats"><div className="stat"><span>Total data</span><strong>{filtered.length}</strong><small>baris ditampilkan</small></div><div className="stat"><span>Total QTY</span><strong>{totalQty.toLocaleString("id-ID")}</strong><small>jumlah stok terfilter</small></div><div className="stat"><span>Status</span><strong className="online">Live</strong><small>{user?"Terhubung":"Menunggu akun"}</small></div></section>
   <section className="panel">
-   <div className="tabs">{sheets.map(n=><button key={n} className={"tab"+(n===sheet?" active":"")} onClick={()=>{setSheet(n);setLotFilter("Semua LOT");setSearch("")}}>Lembar {n}</button>)}<button className="tab add" title="Tambah lembar" onClick={()=>{const n=maxSheet+1;setExtra(n);setSheet(n);setLotFilter("Semua LOT");setSearch("")}}><Plus size={16}/></button></div>
-   <div className="toolbar"><div><h2>Daftar barang • Lembar {sheet}</h2><p>Data SO, jumlah, lot, dan keterangan</p></div><button className="primary" onClick={openNew}><Plus size={18}/> Tambah data</button></div>
+   <div className="tabs">{sheets.map(n=><button key={n} className={"tab"+(n===sheet?" active":"")} onClick={()=>{setSheet(n);setLotFilter("Semua LOT");setSearch("")}}>{label(n)}</button>)}<button className="tab add" title="Tambah lembar" onClick={()=>{const n=maxSheet+1;setExtra(n);setSheet(n);setLotFilter("Semua LOT");setSearch("")}}><Plus size={16}/></button></div>
+   <div className="toolbar"><div><h2>Daftar barang • {label(sheet)} <button className="rename" title="Ubah nama lembar" onClick={renameSheet}><Edit3 size={15}/></button></h2><p>Data SO, jumlah, lot, dan keterangan</p></div><button className="primary" onClick={openNew}><Plus size={18}/> Tambah data</button></div>
    <div className="filters"><label className="search"><Search size={18}/><input placeholder="Cari nomor SO atau keterangan..." value={search} onChange={e=>setSearch(e.target.value)}/></label><label className="select"><Filter size={17}/><select value={lotFilter} onChange={e=>setLotFilter(e.target.value)}>{lots.map(l=><option key={l}>{l}</option>)}</select></label><button className="secondary" onClick={exportCSV}><Download size={17}/> Excel/CSV</button></div>
    <div className="tablewrap"><table><thead><tr><th>SO</th><th>QTY</th><th>LOT</th><th>KET</th><th>Aksi</th></tr></thead><tbody>
     {filtered.map(r=><tr key={r.id}><td className="so">{r.so}</td><td>{Number(r.qty).toLocaleString("id-ID")}</td><td><span className="lot">{r.lot}</span></td><td className="ket">{r.ket||"—"}</td><td><div className="actions"><button title="Edit" onClick={()=>openEdit(r)}><Edit3 size={16}/></button></div></td></tr>)}
