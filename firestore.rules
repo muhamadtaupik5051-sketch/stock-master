@@ -6,7 +6,7 @@ service cloud.firestore {
     // Penghapusan juga diizinkan pada versi awal; hapus izin ini jika ingin proteksi ekstra.
     match /stockItems/{itemId} {
       allow read, create, update: if request.auth != null;
-      allow delete: if false;
+      allow delete: if request.auth != null;
     }
   }
 }
