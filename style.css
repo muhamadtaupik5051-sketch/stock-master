@@ -197,3 +197,5 @@ header{height:auto;min-height:62px;padding:10px 0;flex-wrap:wrap;gap:8px 10px}
 .user-tools .logout-btn{padding:7px 10px;font-size:12px}
 .user-tools .role-pill{font-size:10px}
 }
+/* Angka SO lebih tebal */
+.tablewrap td.so{font-weight:600}
