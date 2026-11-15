@@ -85,7 +85,7 @@ function App(){
   return()=>{document.removeEventListener("touchstart",ts);document.removeEventListener("touchmove",tm);document.removeEventListener("touchend",te)};
  },[]);
  const totalW=Math.round(COLS.reduce((a,c)=>a+cw[c],0)*z);
- const [sel,setSel]=useState([]),[undo,setUndo]=useState(null),timer=useRef(null);
+ const [sel,setSel]=useState(()=>{try{const v=JSON.parse(localStorage.getItem("sm-sel")||"[]");return Array.isArray(v)?v:[]}catch(e){return []}}),[undo,setUndo]=useState(null),timer=useRef(null);
  const [sheet,setSheet]=useState(1),[names,setNames]=useState({});
  useEffect(()=>onAuthStateChanged(auth,u=>{
   if(!u){signInAnonymously(auth).catch(e=>{setAuthError("Tidak dapat membuka akses publik: "+e.message);setAuthLoading(false)});return}
@@ -115,7 +115,8 @@ function App(){
  },[user,profile?.role]);
  useEffect(()=>{const on=()=>setOnline(true),off=()=>setOnline(false);window.addEventListener("online",on);window.addEventListener("offline",off);return()=>{window.removeEventListener("online",on);window.removeEventListener("offline",off)}},[]);
  const commit=p=>navigator.onLine?p:(p.catch(()=>{}),null);
- useEffect(()=>setSel([]),[sheet]);
+ useEffect(()=>{try{localStorage.setItem("sm-sel",JSON.stringify(sel))}catch(e){}},[sel]);
+ useEffect(()=>{if(!rows.length)return;const ids=new Set(rows.map(r=>r.id));setSel(v=>{const n=v.filter(x=>ids.has(x));return n.length===v.length?v:n})},[rows]);
  useEffect(()=>{
   if(!modal)return;const vv=window.visualViewport;if(!vv)return;const r=document.documentElement.style;
   const set=()=>{r.setProperty("--vvh",vv.height+"px");r.setProperty("--vvt",vv.offsetTop+"px")};
@@ -202,7 +203,7 @@ function App(){
   if(!window.confirm(msg))return;
   try{
    for(let i=0;i<list.length;i+=400){const b=writeBatch(db);list.slice(i,i+400).forEach(r=>b.delete(doc(db,"stockItems",r.id)));await commit(b.commit())}
-   setSel([]);clearTimeout(timer.current);setUndo(list);timer.current=setTimeout(()=>setUndo(null),10000);
+   setSel(v=>v.filter(x=>!list.some(r=>r.id===x)));clearTimeout(timer.current);setUndo(list);timer.current=setTimeout(()=>setUndo(null),10000);
   }catch(e){alert("Gagal menghapus: "+e.message)}
  }
  async function undoDelete(){
@@ -237,7 +238,7 @@ function App(){
    <div className="tabs">{sheets.map(n=><button key={n} className={"tab"+(n===sheet?" active":"")} onClick={()=>{setSheet(n);setLotFilter("Semua LOT");setSearch("")}}>{label(n)}</button>)}{canAddSheet&&<button className="tab add" title="Tambah lembar" onClick={addSheet}><Plus size={16}/></button>}</div>
    <div className="toolbar"><div><h2>Daftar barang • {label(sheet)} {isAdmin&&<button className="rename" title="Ubah nama lembar" onClick={renameSheet}><Edit3 size={15}/></button>} {canDeleteSheet&&<button className="rename" title="Hapus lembar" onClick={deleteSheet}><Trash2 size={15}/></button>}</h2><p>Data SO, jumlah, lot, dan keterangan</p></div></div>
    <div className="filters">{canAddStock&&<button className="primary" onClick={openNew}><Plus size={18}/> Tambah</button>}<label className="search"><Search size={18}/><input placeholder="Cari SO" value={search} onChange={e=>setSearch(e.target.value)}/></label>{canAddStock&&<button className="secondary" title="Impor dari Excel" aria-label="Impor dari Excel" onClick={()=>setImp({text:""})}><Upload size={17}/><span className="lbl">Impor</span></button>}<button className="secondary" title="Unduh Excel/CSV" aria-label="Unduh Excel/CSV" onClick={exportCSV}><Download size={17}/><span className="lbl">Excel/CSV</span></button></div>
-   {canDeleteStock&&selRows.length>0&&<div className="bulk"><span>{selRows.length} data dipilih</span><div><button className="secondary" onClick={()=>setSel([])}>Batal pilih</button><button className="dangerbtn" onClick={()=>deleteRows(selRows)}><Trash2 size={16}/> Hapus terpilih</button></div></div>}
+   {canDeleteStock&&selRows.length>0&&<div className="bulk"><span>{selRows.length} data dipilih{sel.length>selRows.length?" (+"+(sel.length-selRows.length)+" di lembar/filter lain)":""}</span><div><button className="secondary" onClick={()=>setSel([])}>Batal pilih</button><button className="dangerbtn" onClick={()=>deleteRows(selRows)}><Trash2 size={16}/> Hapus terpilih</button></div></div>}
    <div className="zooms"><div className="zoom"><span>Tabel</span><button type="button" aria-label="Perkecil tabel" onClick={()=>zoom(-.1)}><Minus size={15}/></button><b title="Ketuk untuk kembali 100%" onClick={()=>zoom(1-z)}>{Math.round(z*100)}%</b><button type="button" aria-label="Perbesar tabel" onClick={()=>zoom(.1)}><Plus size={15}/></button></div>
    <div className="zoom"><span>Huruf</span><button type="button" aria-label="Perkecil huruf" onClick={()=>fsize(-.1)}><span style={{fontSize:12,fontWeight:700}}>A</span></button><b title="Ketuk untuk kembali 100%" onClick={()=>fsize(1-fs)}>{Math.round(fs*100)}%</b><button type="button" aria-label="Perbesar huruf" onClick={()=>fsize(.1)}><span style={{fontSize:19,fontWeight:700}}>A</span></button></div></div>
    <div className="tablewrap" style={{"--z":z,"--f":fs}}><table style={{width:totalW,minWidth:"100%"}}><colgroup>{COLS.map(c=><col key={c} style={{width:Math.round(cw[c]*z)}}/>)}</colgroup><thead><tr>{COLS.map(c=>c==="chk"?<th key={c} className="chk">{<input type="checkbox" title="Pilih semua" checked={allSel} onChange={()=>setSel(allSel?[]:filtered.map(r=>r.id))}/>}</th>:<th key={c}>{HEAD[c]}<span className="rz" title="Geser untuk ubah lebar (ketuk 2x untuk reset)" onPointerDown={e=>startRz(e,c)} onDoubleClick={()=>resetRz(c)}/></th>)}</tr></thead><tbody>
