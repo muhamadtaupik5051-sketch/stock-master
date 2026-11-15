@@ -73,6 +73,15 @@ function App(){
  const resetRz=c=>setCw(v=>saveCw({...v,[c]:DEF[c]}));
  const [z,setZ]=useState(()=>{try{return Number(localStorage.getItem("sm-z"))||1}catch(e){return 1}});
  const zoom=d=>setZ(v=>{const n=Math.min(1.6,Math.max(.4,Math.round((v+d)*10)/10));try{localStorage.setItem("sm-z",n)}catch(e){}return n});
+ const zRef=useRef(z);zRef.current=z;
+ useEffect(()=>{
+  let d0=0,z0=1;const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+  const ts=e=>{if(e.touches.length===2&&e.target.closest&&e.target.closest(".tablewrap")){d0=dist(e.touches);z0=zRef.current}else d0=0};
+  const tm=e=>{if(d0&&e.touches.length===2){e.preventDefault();setZ(Math.min(1.6,Math.max(.4,Math.round(z0*dist(e.touches)/d0*20)/20)))}};
+  const te=e=>{if(d0&&e.touches.length<2){d0=0;try{localStorage.setItem("sm-z",zRef.current)}catch(_){}}};
+  document.addEventListener("touchstart",ts,{passive:true});document.addEventListener("touchmove",tm,{passive:false});document.addEventListener("touchend",te);
+  return()=>{document.removeEventListener("touchstart",ts);document.removeEventListener("touchmove",tm);document.removeEventListener("touchend",te)};
+ },[]);
  const totalW=Math.round(COLS.reduce((a,c)=>a+cw[c],0)*z);
  const [sel,setSel]=useState([]),[undo,setUndo]=useState(null),timer=useRef(null);
  const [sheet,setSheet]=useState(1),[names,setNames]=useState({});
@@ -175,7 +184,7 @@ function App(){
   const qty=Number(form.qty);if(!Number.isFinite(qty)||qty<0){setError("QTY harus berupa angka 0 atau lebih.");return}
   try{
    const duplicate=sheetRows.find(r=>String(r.so).toLowerCase()===so.toLowerCase()&&r.id!==editing?.id);
-   if(duplicate){setError("Nomor SO sudah ada di "+label(sheet)+". Gunakan SO yang berbeda atau edit data tersebut.");return}
+   if(duplicate){setError("Nomor SO sudah ada di "+label(sheet)+". Gunakan SO yang berbeda atau edit data tersebut.");alert("SO "+so+" sudah ada di "+label(sheet)+".\nData gagal disimpan.");return}
    const payload={so,qty,lot,style:form.style.trim(),ket:form.ket.trim(),updatedAt:serverTimestamp(),updatedBy:user?.uid||"anon"};
    if(editing&&!canEditStock){setError("Izin edit data sedang OFF.");return}
    if(!editing&&!canAddStock){setError("Izin tambah data sedang OFF.");return}

@@ -199,3 +199,6 @@ header{height:auto;min-height:62px;padding:10px 0;flex-wrap:wrap;gap:8px 10px}
 }
 /* Angka SO lebih tebal */
 .tablewrap td.so{font-weight:600}
+/* Halaman tidak ikut ter-zoom; hanya tabel yang bisa dicubit */
+html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
+.tablewrap{touch-action:pan-x pan-y}
