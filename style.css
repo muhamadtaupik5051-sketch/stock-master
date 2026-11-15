@@ -206,3 +206,7 @@ html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
 .tablewrap td,.tablewrap th{font-size:calc(14px*var(--z,1)*var(--f,1))}
 .tablewrap th{font-size:calc(12px*var(--z,1)*var(--f,1))}
 .zoom+.zoom{margin-top:-2px}
+/* Ukuran tabel dan ukuran huruf sejajar dalam satu baris */
+.zooms{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 8px}
+.zooms .zoom{margin:0;justify-content:flex-start;gap:6px;flex:none}
+.zooms .zoom b{min-width:38px}
