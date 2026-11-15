@@ -202,3 +202,7 @@ header{height:auto;min-height:62px;padding:10px 0;flex-wrap:wrap;gap:8px 10px}
 /* Halaman tidak ikut ter-zoom; hanya tabel yang bisa dicubit */
 html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
 .tablewrap{touch-action:pan-x pan-y}
+/* Ukuran huruf tabel (terpisah dari ukuran tabel) */
+.tablewrap td,.tablewrap th{font-size:calc(14px*var(--z,1)*var(--f,1))}
+.tablewrap th{font-size:calc(12px*var(--z,1)*var(--f,1))}
+.zoom+.zoom{margin-top:-2px}
