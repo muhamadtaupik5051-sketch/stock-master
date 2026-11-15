@@ -177,3 +177,11 @@ td.sty{text-align:center}.ket{max-width:none}
 .app-switch-row{margin-top:10px;padding:15px 10px;background:#fff7e7;border:1px solid #f2dfb8;border-radius:12px}
 .control-modal .modalbuttons{margin-top:16px}
 @media(max-width:520px){.control-row{padding:12px 0}.control-row b{font-size:13px}.switch{min-width:56px}}
+
+/* Perbaikan panel Kontrol Aplikasi agar tidak terpotong di layar HP */
+.control-overlay{align-items:center;overflow-y:auto;padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));}
+.control-overlay .control-modal{align-self:center;width:min(620px,100%);max-height:calc(100dvh - max(24px, env(safe-area-inset-top) + env(safe-area-inset-bottom)));overflow-y:auto;overscroll-behavior:contain;margin:auto;padding-bottom:24px;}
+@media(max-width:650px){
+ .control-overlay{display:block;padding: max(12px, env(safe-area-inset-top)) 0 max(12px, env(safe-area-inset-bottom));}
+ .control-overlay .control-modal{width:100%;max-height:calc(100dvh - max(24px, env(safe-area-inset-top) + env(safe-area-inset-bottom)));border-radius:16px 16px 0 0;margin:0 auto;padding:18px 16px 24px;}
+}
