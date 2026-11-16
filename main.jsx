@@ -176,7 +176,7 @@ function App(){
  const sheets=[...new Set([...(control.sheetNumbers||[1,2,3]),...rows.map(sheetOf)])].sort((a,b)=>a-b);
  const sheetRows=useMemo(()=>rows.filter(r=>sheetOf(r)===sheet),[rows,sheet]);
  const lots=useMemo(()=>["Semua LOT",...new Set(sheetRows.map(r=>r.lot).filter(Boolean).sort())],[sheetRows]);
- const filtered=useMemo(()=>sheetRows.filter(r=>(String(r.so).toLowerCase().includes(search.toLowerCase())||String(r.ket||"").toLowerCase().includes(search.toLowerCase())||String(r.style||"").toLowerCase().includes(search.toLowerCase()))&&(lotFilter==="Semua LOT"||r.lot===lotFilter)).map((r,i)=>[r,i]).sort((a,b)=>{const za=(Number(String(a[0].qty).replace(/[^0-9.-]/g,""))||0)===0?0:1,zb=(Number(String(b[0].qty).replace(/[^0-9.-]/g,""))||0)===0?0:1;return za-zb||a[1]-b[1]}).map(x=>x[0]),[sheetRows,search,lotFilter]);
+ const filtered=useMemo(()=>sheetRows.filter(r=>(String(r.so).toLowerCase().includes(search.toLowerCase())||String(r.ket||"").toLowerCase().includes(search.toLowerCase())||String(r.style||"").toLowerCase().includes(search.toLowerCase()))&&(lotFilter==="Semua LOT"||r.lot===lotFilter)).map((r,i)=>[r,i]).sort((a,b)=>{const todo=r=>{const q=(Number(String(r.qty).replace(/[^0-9.-]/g,""))||0)===0,l=String(r.lot||"").trim(),nl=l===""||l==="0";return q||nl?0:1},za=todo(a[0]),zb=todo(b[0]);return za-zb||a[1]-b[1]}).map(x=>x[0]),[sheetRows,search,lotFilter]);
  const selRows=filtered.filter(r=>sel.includes(r.id));
  const allSel=filtered.length>0&&selRows.length===filtered.length;
  const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):[...v,id]);
