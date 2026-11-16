@@ -210,3 +210,6 @@ html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
 .zooms{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 8px}
 .zooms .zoom{margin:0;justify-content:flex-start;gap:6px;flex:none}
 .zooms .zoom b{min-width:38px}
+
+/* Pencarian suara */
+.vbtn{border:0;background:transparent;padding:4px;display:flex;align-items:center;justify-content:center;color:var(--mut);cursor:pointer;flex:0 0 auto;min-height:0;width:auto}.vbtn.on{color:#fff;background:#dc2626;border-radius:50%;animation:vpulse 1s infinite}@keyframes vpulse{50%{opacity:.6}}
